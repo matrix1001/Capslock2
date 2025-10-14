@@ -1,55 +1,30 @@
 ErrorMsg(e := "", msg := "")
 {
     err_msg := ""
-    if (msg != "")
-    {
+    if msg
         err_msg .= "Function msg:`n" . msg . "`n`n"
-    }
-    if (e != "")
-    {
+    if e
         err_msg .= "Exception:`nwhat: " e.what "`nfile: " e.file
             . "`nline: " e.line "`nmessage: " e.message "`nextra: " e.extra
-    }
     MsgBox(err_msg, "ERROR", 16)
     ;TrayTip(err_msg, "Capslock2 Error", 0x13)
 }
 
+NotifyMsg(msg, level := 1, title := "INFO", delay := 3000)
+{
+    if HyperSettings["Notify"]["MsgLevel"] <= level
+        AddNotification(msg, title, delay)
+}
 
-SuccessMsg(msg)
+SuccessMsg(msg) => NotifyMsg(msg, 1, "SUCCESS")
+WarningMsg(msg) => NotifyMsg(msg, 2, "WARNING", 6000)
+InfoMsg(msg)    => NotifyMsg(msg, 1, "INFO")
+DebugMsg(msg)   => NotifyMsg(msg, 0, "DEBUG")
+
+AddNotification(msg, title := "", delay := 3000)
 {
-    if (HyperSettings["Notify"]["MsgLevel"] <= 1)
-    {
-        AddNotification(msg, "SUCCESS")
-    } 
-}
-WarningMsg(msg)
-{
-    if (HyperSettings["Notify"]["MsgLevel"] <= 2)
-    {
-        AddNotification(msg, "WARNING", 6000)
-    } 
-}
-InfoMsg(msg)
-{
-    if (HyperSettings["Notify"]["MsgLevel"] <= 1)
-    {
-        AddNotification(msg, "INFO")
-    } 
-}
-DebugMsg(msg)
-{
-    if (HyperSettings["Notify"]["MsgLevel"] = 0)
-    {
-        AddNotification(msg, "DEBUG")
-    }
-}
-AddNotification(msg, title:="", delay:=3000)
-{
-    if (not A_IsSuspended)
-    {
-        noti := Map("msg", msg, "title", title, "delay", delay)
-        RunTime["Notifications"].insertat(1, noti)
-    }
+    if !A_IsSuspended
+        RunTime["Notifications"].insertat(1, Map("msg", msg, "title", title, "delay", delay))
 }
 
 

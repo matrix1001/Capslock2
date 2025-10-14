@@ -18,31 +18,24 @@ InitSettings()
 InitTrayMenu()
 SuccessMsg("Start Capslock2")
 
+CapsLockChecker() {
+    ; set HyperShort to 0 to indicate user hesitated
+    SafeSetRuntimeValue("HyperShort", 0)
+}
 
 CapsLock::
 {
     if (HyperSettings["Basic"]["DisableOnFullScreen"] = 1 and IsWindowFullScreen("A") and not IsDesktop("A"))
-    {
         return
-    }
-        
-    SetTimer(CapsLockChecker, -250)
 
+    SetTimer(CapsLockChecker, -250)
     SafeSetRuntimeValues(["Hyper", "HyperOnly", "HyperShort", "HyperAlt", "HyperWin"], [1, 1, 1, 0, 0])
 
     KeyWait("CapsLock")
     if (RunTime["HyperOnly"] = 1 and RunTime["HyperShort"] = 1)
-    {
         ToggleCapsLock()
-    }
 
     SafeSetRuntimeValues(["Hyper", "HyperOnly", "HyperShort"], [0, 0, 0])
-
-    CapsLockChecker()
-    {
-        ;set HyperShort to 0 to indicate user hesitated
-        SafeSetRuntimeValue("HyperShort", 0)
-    }
 }
 
 
@@ -62,14 +55,8 @@ Esc::
         RunTime["Suspend"] := 1
     }
 }
-lalt::
-{
-    SafeSetRuntimeValue("HyperAlt", 1)
-}
-lwin::
-{
-    SafeSetRuntimeValue("HyperWin", 1)
-}
+lalt::SafeSetRuntimeValue("HyperAlt", 1)
+lwin::SafeSetRuntimeValue("HyperWin", 1)
 a::
 b::
 c::
@@ -188,24 +175,23 @@ wheeldown::
 }
 
 #HotIf
-
-!x::
+!q::
 {
-    WinShow('ahk_exe notepad.exe')
-    
-}
+    MsgBox('test')
+    ; 示例调用
+    pyCode := "
+    (
+    import requests
 
-!z::
-{
-    WinActivate('ahk_exe notepad.exe')
-}
+    r = requests.get("http://api.btstu.cn/yan/api.php?charset=utf-8&encode=json")
+    print(r.json())
+    1/0
+    )"
 
-!c::
-{
-    WinHide('ahk_exe notepad.exe')
-}
-
-!v::
-{
-    MsgBox(WinExist('ahk_exe notepad.exe'))
+    ;output := RunPythonCode(pyCode)
+    ;MsgBox output
+    ;arr := ["test", "test2", "test3"]
+    ;dilim := ", "
+    ;s := ArrayToString(arr, dilim)
+    ;MsgBox(s)
 }

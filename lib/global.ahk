@@ -1,6 +1,3 @@
-Hyper := 0, HyperOnly := 0, HyperShort := 0
-HyperAlt := 0, HyperWin := 0
-
 HyperSettings := Map()
 HyperSettings["Basic"] := Map(
     "Admin",0,
@@ -8,20 +5,20 @@ HyperSettings["Basic"] := Map(
     "ScriptMonitor",1,
     "SettingMonitor",1,
     "StartUp",1,
-    "Python","",
+    "Python",""
 )
 
 HyperSettings["Trans"] := Map(
     "SourceLanguage","auto",
     "TargetLanguage","zh",
-    "GoogleProxy","force",
+    "GoogleProxy","force"
 )
 
 HyperSettings["Notify"] := Map(
     "Enable",1,
     "Max",5,
     "MsgLevel",1,
-    "Style","slide",
+    "Style","slide"
 )
 
 HyperSettings["Keymap"] := Map(
@@ -64,38 +61,41 @@ HyperSettings["Keymap"] := Map(
     "alt_p","ToggleProxy",
     "alt_o","ToggleBackgound(MyHTTPServer)",
 
-    "w","WindowA(NotePad)",
+    "w","WindowA(NotePad)"
 )
 
 HyperSettings["Background"] := Map(
-    "MyHTTPServer","/path/to/http_server.exe -p 1080",
+    "MyHTTPServer","/path/to/http_server.exe -p 1080"
 )
 
 HyperSettings["Switch"] := Map(
-    "NotePad","notepad.exe",
+    "NotePad","notepad.exe"
 )
-
 
 ScriptDir := ["lib", "script"]
 
-RunTime := Map()
-RunTime["Hyper"] := 0
-RunTIme["HyperOnly"] := 0
-RunTIme["HyperShort"] := 0
-RunTIme["HyperAlt"] := 0
-RunTIme["HyperWin"] := 0
-RunTime["Notifications"] := Array()
-RunTime["SettingChange"] := 0
-RunTime["ScriptChange"] := 0
-RunTime["StartTime"] := A_MM . "/" . A_DD . " " . A_Hour . ":" . A_Min
-RunTime["Suspend"] := 0
+; 运行时变量
+RunTime := Map(
+    "Hyper", 0,
+    "HyperOnly", 0,
+    "HyperShort", 0,
+    "HyperAlt", 0,
+    "HyperWin", 0,
+    "Notifications", Array(),
+    "SettingChange", 0,
+    "ScriptChange", 0,
+    "StartTime", A_MM . "/" . A_DD . " " . A_Hour . ":" . A_Min,
+    "Suspend", 0
+)
 
+; 安全设置运行时单个值
 SafeSetRuntimeValue(key, val)
 {
     Critical "On"
     RunTime[key] := val
     Critical "Off"
 }
+; 安全设置运行时多个值
 SafeSetRuntimeValues(key_arr, val_arr)
 {
     Critical "On"

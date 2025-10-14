@@ -223,5 +223,4 @@ SettingMonitor()
         Runtime["SettingChange"] := 1
         timestamps := temp
     }
-    
 }
