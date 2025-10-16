@@ -154,18 +154,8 @@ __注意事项__
 - 程序的路径不能包含空格
 - 程序请带上`.exe`结尾
 ### Python程序支持
-技术方法很简单，利用剪贴板传递代码，执行完毕后利用剪贴板输出，需要在`python`代码里面设置变量`AHK_RETURN_STR`作为最终输出。如下代码最终会弹出`test function from python: 4`。
+查看capslock2.ahk末尾的示例，使用的是python输出作为返回值，包括错误信息也作为返回文本了。
 
-```
-test_python_code := "
-(
-def test(n):
-    return n+2
-AHK_RETURN_STR = "test function from python: {}".format(test(2))
-)"
-
-MsgBox(RunPythonCode(test_python_code))
-```
 ### 添加你的AHK脚本
 由于键、函数分离的设计，你只需要按照如下步骤即可：
 - 在脚本中定义好你想用的函数，将脚本放入`lib`或者`script`目录
