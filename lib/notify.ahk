@@ -1,215 +1,141 @@
-ErrorMsg(e := "", msg := "")
-{
-    err_msg := ""
-    if msg
-        err_msg .= "Function msg:`n" . msg . "`n`n"
-    if e
-        err_msg .= "Exception:`nwhat: " e.what "`nfile: " e.file
-            . "`nline: " e.line "`nmessage: " e.message "`nextra: " e.extra
-    MsgBox(err_msg, "ERROR", 16)
-    ;TrayTip(err_msg, "Capslock2 Error", 0x13)
-}
+class Notify {
+    _pending := []
+    _active := []
+    _max := 5
+    _level := 1
+    _style := "slide"
+    _loopActive := false
+    _config := ""
 
-NotifyMsg(msg, level := 1, title := "INFO", delay := 3000)
-{
-    if HyperSettings["Notify"]["MsgLevel"] <= level
-        AddNotification(msg, title, delay)
-}
-
-SuccessMsg(msg) => NotifyMsg(msg, 1, "SUCCESS")
-WarningMsg(msg) => NotifyMsg(msg, 2, "WARNING", 6000)
-InfoMsg(msg)    => NotifyMsg(msg, 1, "INFO")
-DebugMsg(msg)   => NotifyMsg(msg, 0, "DEBUG")
-
-AddNotification(msg, title := "", delay := 3000)
-{
-    if !A_IsSuspended
-        RunTime["Notifications"].insertat(1, Map("msg", msg, "title", title, "delay", delay))
-}
-
-
-WinNotification(message, title, delay:=3000) ;note: accept only two lines for message
-{
-    static records := []
-
-    ;turn off threads to avoid race condition
-    SetTimer(notichecker, 0)
-    SetTimer(noticounter, 0)
- 
-    ;max notification limit
-    while (records.Length > HyperSettings["Notify"]["Max"])
-    {
-        val := records.pop()
-        gui := val["gui"]
-        gui.Destroy()
+    Init(config) {
+        this._config := config
+        this._max := config.Get("Notify", "Max", 5)
+        this._level := config.Get("Notify", "MsgLevel", 1)
+        this._style := config.Get("Notify", "Style", "slide")
+        if config.Get("Notify", "Enable", 1) = 1
+            this._StartLoop()
     }
 
-    info := WinNotificationInit(message, title)
-    info["counter"] := delay
+    Error(msg, extra := "") {
+        errMsg := msg
+        if extra
+            errMsg .= "`n`n" . extra
+        MsgBox(errMsg, "Capslock2 Error", 16)
+    }
 
-    ;move old notification up
-    prev_height := info["height"] 
-    for index, val in records
-    {
-        if (val["counter"] > 0)
-        {
-            gui := val["gui"]
-            y := val["y"] - prev_height
-            gui.Show("NoActivate  NA y" . y)
-            prev_height += val["height"]
+    Warn(msg) => this.Push(msg, "WARNING", 6000, 2)
+    Info(msg) => this.Push(msg, "INFO", 3000, 1)
+    Debug(msg) => this.Push(msg, "DEBUG", 3000, 0)
+
+    Push(msg, title := "INFO", delay := 3000, level := 1) {
+        if level < this._level
+            return
+        if A_IsSuspended
+            return
+        this._pending.InsertAt(1, {msg: msg, title: title, delay: delay})
+    }
+
+    SetLevel(n) {
+        this._level := n
+    }
+
+    _StartLoop() {
+        if this._loopActive
+            return
+        this._loopActive := true
+        SetTimer(this._Consume.Bind(this), 250)
+    }
+
+    _Consume() {
+        if this._config.Get("Basic", "DisableOnFullScreen", 1) = 1 {
+            if WindowMgr.IsFullScreen("A")
+                return
         }
-    }
-
-    ;show new notification
-    gui := info["gui"]
-    hwnd := gui.Hwnd
-    Width := info["width"]
-    Height := info["height"]
-    x := info["x"]
-    y := info["y"]
-    gui.Show("W" . Width . " H" . Height . " NoActivate Hide x" . x . " y" . y)
-    if (HyperSettings["Notify"]["Style"] = "fade")
-    {
-        WinFade(hwnd, "in", 300)
-    }
-    else if (HyperSettings["Notify"]["Style"] = "slide")
-    {
-        WinSlide(hwnd, "in", "r", 300)
-    }
-
-    
-    records.insertat(1, info)
-
-    SetTimer(notichecker, 250)
-    SetTimer(noticounter, 250)
-    return
-
-
-    noticounter()
-    {
-        for index, val in records
-        {
-            
-            val["counter"] -= 250
-            val["counter"] = Max(val["counter"], 0)
-            records[index] := val
+        while this._pending.Length > 0 {
+            item := this._pending.Pop()
+            this._Show(item.msg, item.title, item.delay)
         }
-        return
+        this._TickCountdown()
+        this._CheckExpired()
     }
-    notichecker()
-    {
-        rrecords := GetReverseArray(records)
-        for index, val in rrecords
-        {
-            if (val["counter"] <= 0)
-            {
 
-                gui := val["gui"]
-                hwnd := gui.Hwnd
-                if (HyperSettings["Notify"]["Style"] = "fade")
-                {
-                    WinFade(hwnd, "out", 200)
-                }
-                else if (HyperSettings["Notify"]["Style"] = "slide")
-                {
-                    WinSlide(hwnd, "out", "l", 200)
-                }
+    _Show(message, title, delay) {
+        gui := this._BuildGui(message, title)
+        pos := this._GetPosition(gui, 400)
+        Width := pos.w, Height := pos.h
+
+        for _, item in this._active {
+            item.y -= Height
+            item.gui.Show("NoActivate NA y" . item.y)
+        }
+
+        x := pos.x, y := pos.y
+        gui.Show("W" . Width . " H" . Height . " NoActivate Hide x" . x . " y" . y)
+
+        if (this._style = "slide")
+            this._Animate(gui.Hwnd, "slide_in")
+        else if (this._style = "fade")
+            this._Animate(gui.Hwnd, "fade_in")
+
+        this._active.InsertAt(1, {gui: gui, y: y, h: Height, counter: delay})
+    }
+
+    _BuildGui(message, title, Width := 400) {
+        gui := Gui()
+        gui.Opt("+AlwaysOnTop +ToolWindow -SysMenu -Caption +LastFound -DPIScale")
+        gui.BackColor := "c808080"
+        gui.MarginX := 0
+        gui.MarginY := 10
+        gui.SetFont("s13 cD0D0D0", "Bold")
+        gui.Add("Progress", "x-1 y-1 w" . (Width + 2) . " h31 Background404040 Disabled")
+        gui.Add("Text", "x0 y0 w" . Width . " h30 BackgroundTrans Center 0x200", title)
+        gui.SetFont("s10")
+        gui.Add("Text", "x7 y+10 Center w" . (Width - 14), message)
+        return gui
+    }
+
+    _GetPosition(gui, W) {
+        gui.Show("NoActivate Hide W" . W)
+        WinGetPos(&x, &y, &w, &h)
+        MonitorGetWorkArea(,,, &right, &bottom)
+        return {x: right - w - 5, y: bottom - h - 5, w: w, h: h}
+    }
+
+    _Animate(hwnd, method) {
+        if (method = "slide_in")
+            value := 0x40002
+        else if (method = "slide_out")
+            value := 0x50001
+        else if (method = "fade_in")
+            value := 0xA0000
+        else
+            value := 0x90000
+        DllCall("AnimateWindow", "UInt", hwnd, "Int", 300, "UInt", value)
+    }
+
+    _TickCountdown() {
+        for i, item in this._active
+            this._active[i].counter := Max(item.counter - 250, 0)
+    }
+
+    _CheckExpired() {
+        reversed := Helpers.GetReverseArray(this._active)
+        for _, item in reversed {
+            if item.counter <= 0 {
+                hwnd := item.gui.Hwnd
+                if (this._style = "slide")
+                    this._Animate(hwnd, "slide_out")
+                else if (this._style = "fade")
+                    this._Animate(hwnd, "fade_out")
                 else
-                {
-                    gui.Destroy()
+                    item.gui.Destroy()
+                for i, a in this._active {
+                    if a.gui.Hwnd = hwnd {
+                        this._active.RemoveAt(i)
+                        break
+                    }
                 }
             }
         }
-        return
     }
-
-}
-
-WinNotificationInit(message, title, Width:=400) 
-{
-    _gui := Gui()
-    _gui.Opt("+AlwaysOnTop +ToolWindow -SysMenu -Caption +LastFound -DPIScale")
-    _gui.BackColor := "c808080"
-    _gui.MarginX := 0
-    _gui.MarginY := 10
-    _gui.SetFont("s13 cD0D0D0", "Bold")
-    _gui.Add("Progress", "x-1 y-1 w" . (Width+2) . " h31 Background404040 Disabled")
-    _gui.Add("Text", "x0 y0 w" . Width . " h30 BackgroundTrans Center 0x200", title)
-    _gui.SetFont("s10")
-    _gui.Add("Text", "x7 y+10 Center w" . (Width-14), message)
-
-    pos := WinGetPosHide(_gui, Width) 
-
-    Height := pos["height"]
-    WinSetRegion("0-0 w" . Width . " h" . Height . " r6-6")
-    MonitorGetWorkArea(,,,&right:=0, &bottom:=0)
-    x := right-pos["width"]-5
-    y := bottom-pos["height"]-5
-
-    return Map("x",x ,"y",y, "width",Width, "height",Height, "gui",_gui)
-}
-
-WinSlide(hwnd, method:="in", begin_pos:="b", delay:=500) ;direction: l, r, u, d
-{
-    ;https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-animatewindow
-    ;value := 0x40000+method*0x10000
-    if (method = "in")
-    {
-        value := 0x40000
-    }
-    else
-    {
-        value := 0x50000
-    }
-    if InStr(begin_pos, "t")
-    {
-        value += 4
-    }
-    if InStr(begin_pos, "b")
-    {
-        value += 8
-    }
-    if InStr(begin_pos, "l")
-    {
-        value += 1
-    }
-    if InStr(begin_pos, "r")
-    {
-        value += 2
-    }
-    DllCall("AnimateWindow","UInt",hwnd,"Int",delay,"UInt",value)
-    Return
-}
-WinFade(hwnd, method:="out", delay:=1000) 
-{
-    if (method = "out")
-    {
-        value := 0x90000
-    }
-    else
-    {
-        value := 0xa0000
-    }
-    DllCall("AnimateWindow","UInt",hwnd,"Int",delay,"UInt",value)
-    return
-}
-
-WinGetPosHide(gui, W:=0, H:=0)
-{
-    if (W != 0 and H != 0)
-    {
-        gui.Show("NoActivate Hide W" . W . " H" . H)
-    }
-    else if (W != 0)
-    {
-        gui.Show("NoActivate Hide W" . W)
-    }
-    else if (H != 0)
-    {
-        gui.Show("NoActivate Hide H" . H)
-    }
-        
-    WinGetPos(&x, &y, &width, &height)
-    result := Map("width",width, "height",height, "x",x, "y",y)
-    return result
 }
