@@ -16,6 +16,7 @@ SetWorkingDir(A_InitialWorkingDir)
 #Include lib\input.ahk
 #Include lib\tray.ahk
 #Include lib\engine.ahk
+#Include lib\functions.ahk
 
 SetCapsLockState("AlwaysOff")
 ProcessSetPriority("High")
