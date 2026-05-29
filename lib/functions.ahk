@@ -17,7 +17,7 @@ WindowCClear() {
     Engine.Instance.notify.Info("Press digit 1-5 to clear binding")
     digit := Helpers.InputSingleKey()
     if RegExMatch(digit, "^\d$") {
-        Engine.Instance.window.QuickClear(Integer(digit))
+        Engine.Instance.window.QuickClear(digit)
         Engine.Instance.notify.Info("QuickWindow " . digit . " cleared")
     }
 }
