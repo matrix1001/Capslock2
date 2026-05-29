@@ -26,6 +26,7 @@ class TrayMgr {
             case "Disable On Full Screen":
                 current := this._engine.config.Get("Basic", "DisableOnFullScreen", 1)
                 this._engine.config.Set("Basic", "DisableOnFullScreen", current = 0 ? 1 : 0)
+                this._engine.config.Save()
                 this.UpdateState()
             case "Reload":
                 this._engine.OnHotReload()
@@ -52,6 +53,7 @@ class TrayMgr {
         levelMap := Map("Debug", 0, "Normal", 1, "WarnOnly", 2, "Disable", 3)
         this._engine.notify.SetLevel(levelMap[ItemName])
         this._engine.config.Set("Notify", "MsgLevel", levelMap[ItemName])
+        this._engine.config.Save()
         this.UpdateState()
     }
 
@@ -88,7 +90,7 @@ class TrayMgr {
         this._utilsMenu.Add()
         this._utilsMenu.Add("Background", this._OnUtilsEvent.Bind(this))
         this._utilsMenu.Disable("Background")
-        for bgName, _ in this._engine.config.Get("Background", Map())
+        for bgName, _ in this._engine.config.GetSection("Background")
             this._utilsMenu.Add(bgName, this._OnUtilsEvent.Bind(this))
 
         A_TrayMenu.Add("Utils", this._utilsMenu)
@@ -112,7 +114,7 @@ class TrayMgr {
             content .= " (enable)"
         content .= "`n"
 
-        for bgName, bgCmd in this._engine.config.Get("Background", Map())
+        for bgName, bgCmd in this._engine.config.GetSection("Background")
             if ProcessExist(Helpers.GetNameFromCmd(bgCmd))
                 content .= "Background: " . bgName . "`n"
 
@@ -134,11 +136,11 @@ class TrayMgr {
         if A_IsAdmin
             A_TrayMenu.Check("Run As Admin")
 
-        this._utilsMenu.Check(Helpers.GetProxyServer())
+        this._utilsMenu.Uncheck(Helpers.GetProxyServer())
         if Helpers.GetProxyStatus()
             this._utilsMenu.Check(Helpers.GetProxyServer())
 
-        for bgName, bgCmd in this._engine.config.Get("Background", Map()) {
+        for bgName, bgCmd in this._engine.config.GetSection("Background") {
             bgExe := Helpers.GetNameFromCmd(bgCmd)
             if ProcessExist(bgExe)
                 this._utilsMenu.Check(bgName)

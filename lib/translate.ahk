@@ -78,7 +78,7 @@ class TranslateSvc {
             for _, sentence in jsonObj["sentences"]
                 trans .= sentence["trans"] . "`n"
 
-            LANGUAGES := Map(
+            static LANGUAGES := Map(
                 "af","afrikaans","sq","albanian","am","amharic","ar","arabic",
                 "hy","armenian","az","azerbaijani","eu","basque","be","belarusian",
                 "bn","bengali","bs","bosnian","bg","bulgarian","ca","catalan",

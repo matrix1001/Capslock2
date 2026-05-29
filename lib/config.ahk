@@ -71,6 +71,15 @@ class Config {
         this._scriptChanged := false
     }
 
+    ; === Section access ===
+    GetSection(section) {
+        result := Map()
+        if this._data.Has(section)
+            for k, v in this._data[section]
+                result[k] := v
+        return result
+    }
+
     ; === Internal: load/save ===
     _Load() {
         secNames := IniRead(this._path)
@@ -78,9 +87,13 @@ class Config {
             lines := StrSplit(IniRead(this._path, sec), "`n")
             for line in lines {
                 line := Trim(line, "`a`t ")
-                pair := StrSplit(line, "=")
-                key := pair[1]
-                val := pair[2]
+                if (line = "")
+                    continue
+                eqPos := InStr(line, "=")
+                if (eqPos = 0)
+                    continue
+                key := SubStr(line, 1, eqPos - 1)
+                val := SubStr(line, eqPos + 1)
                 if not this._data.Has(sec)
                     this._data[sec] := Map()
                 this._data[sec][key] := val
@@ -171,11 +184,13 @@ class Config {
 
     ; === File monitors ===
     _StartMonitors() {
-        SetTimer(this._CheckSettingMtime.Bind(this), 1000)
+        this._mtimeCheckFn := this._CheckSettingMtime.Bind(this)
+        this._scriptCheckFn := this._CheckScriptMtimes.Bind(this)
+        SetTimer(this._mtimeCheckFn, 1000)
         if (this.Get("Basic", "ScriptMonitor", 1) = 1)
-            SetTimer(this._CheckScriptMtimes.Bind(this), 1000)
+            SetTimer(this._scriptCheckFn, 1000)
         if (this.Get("Basic", "SettingMonitor", 1) = 0)
-            SetTimer(this._CheckSettingMtime.Bind(this), 0)
+            SetTimer(this._mtimeCheckFn, 0)
     }
 
     _CheckSettingMtime() {

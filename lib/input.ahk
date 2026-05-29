@@ -32,6 +32,9 @@ class InputMgr {
         this._SuppressNativeBehavior()
         if this._suspend
             return
+        if this._config.Get("Basic", "DisableOnFullScreen", 1) = 1
+            and WindowMgr.IsFullScreen("A") and not WindowMgr.IsDesktop("A")
+            return
         this._capsDownTick := A_TickCount
         this._keysConsumed := false
         this._state := "CapsHeld"
@@ -155,18 +158,19 @@ class InputMgr {
     }
 
     _GetModifierPrefix() {
+        prefix := ""
         if GetKeyState("LAlt", "P") or GetKeyState("RAlt", "P")
-            return "alt"
+            prefix .= "alt_"
         if GetKeyState("LWin", "P") or GetKeyState("RWin", "P")
-            return "win"
-        return ""
+            prefix .= "win_"
+        return prefix
     }
 
     ; === Key name conversion for KeyOpt ===
     _ExtractBaseKey(keyname) {
         for prefix in ["alt_", "win_"] {
             if InStr(keyname, prefix) = 1
-                return SubStr(keyname, StrLen(prefix) + 1)
+                keyname := SubStr(keyname, StrLen(prefix) + 1)
         }
         return keyname
     }
@@ -200,7 +204,7 @@ class InputMgr {
     ; === Layer resolution ===
     _ResolveLayer() {
         if this._layerCache != ""
-            return this._layerCache
+            return this._layerCache = "__none__" ? "" : this._layerCache
         exe := WinGetProcessName("A")
         if exe = ""
             return ""
@@ -209,6 +213,7 @@ class InputMgr {
             this._layerCache := name
             return name
         }
+        this._layerCache := "__none__"
         return ""
     }
 
@@ -247,7 +252,9 @@ class InputMgr {
             try
                 fn(params*)
             catch Error as e
-                Engine.Instance.notify.Error(e.Message . "`n`nLine: " . e.Line, fn.Name)
+                Engine.Instance.notify.Error(
+                    Format("{1}`nLine: {2}`nFile: {3}`nExtra: {4}", e.Message, e.Line, e.File, e.Extra),
+                    fn.Name)
         }
     }
 

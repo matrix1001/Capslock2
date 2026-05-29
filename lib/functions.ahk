@@ -15,8 +15,13 @@ WindowB(name) {
 WindowC(idx) => Engine.Instance.window.QuickToggle(idx)
 WindowCClear() {
     Engine.Instance.notify.Info("Press digit 1-5 to clear binding")
-    digit := Helpers.InputSingleKey()
-    if RegExMatch(digit, "^\d$") {
+    Engine.Instance.input._StopInputHook()
+    ih := InputHook("L1")
+    ih.KeyOpt("12345", "+N")
+    ih.Start()
+    ih.Wait()
+    digit := ih.Input
+    if digit != "" {
         Engine.Instance.window.QuickClear(digit)
         Engine.Instance.notify.Info("QuickWindow " . digit . " cleared")
     }

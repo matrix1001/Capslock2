@@ -48,9 +48,11 @@ class Notify {
 
     _Consume() {
         if this._config.Get("Basic", "DisableOnFullScreen", 1) = 1 {
-            if WindowMgr.IsFullScreen("A")
+            if WindowMgr.IsFullScreen("A") and not WindowMgr.IsDesktop("A")
                 return
         }
+        if this._pending.Length = 0 and this._active.Length = 0
+            return
         while this._pending.Length > 0 {
             item := this._pending.Pop()
             this._Show(item.msg, item.title, item.delay)
@@ -60,6 +62,12 @@ class Notify {
     }
 
     _Show(message, title, delay) {
+        ; enforce max notification limit
+        while this._active.Length >= this._max {
+            oldest := this._active.Pop()
+            oldest.gui.Destroy()
+        }
+
         gui := this._BuildGui(message, title)
         pos := this._GetPosition(gui, 400)
         Width := pos.w, Height := pos.h
@@ -71,6 +79,7 @@ class Notify {
 
         x := pos.x, y := pos.y
         gui.Show("W" . Width . " H" . Height . " NoActivate Hide x" . x . " y" . y)
+        WinSetRegion("0-0 w" . Width . " h" . Height . " r6-6")
 
         if (this._style = "slide")
             this._Animate(gui.Hwnd, "slide_in")
@@ -127,8 +136,7 @@ class Notify {
                     this._Animate(hwnd, "slide_out")
                 else if (this._style = "fade")
                     this._Animate(hwnd, "fade_out")
-                else
-                    item.gui.Destroy()
+                item.gui.Destroy()
                 for i, a in this._active {
                     if a.gui.Hwnd = hwnd {
                         this._active.RemoveAt(i)
