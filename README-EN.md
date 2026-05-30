@@ -37,6 +37,7 @@ Unlike other AHK scripts, Capslock2 has **zero hardcoded hotkeys**. Every key is
 | **GUI settings editor** | ✅ 5 tabs + Pick Window | ❌ | ❌ | ❌ |
 | **Translation** | ✅ China-friendly, dark UI | ✅ Youdao/Google | ❌ | ❌ |
 | **Python integration** | ✅ bind to any key | ❌ | ❌ | ❌ |
+| **Multi-threaded** | ✅ slow ops never block | ⚠️ partial | ❌ | ❌ |
 | **Stuck-key recovery** | ✅ 500ms self-check | ❌ | ❌ | ❌ |
 | **Tap-to-toggle CapsLock** | ✅ <250ms threshold | ✅ | ✅ | ❌ |
 | **File change monitors** | ✅ auto-detect, prompt reload | ✅ | ✅ | ❌ |
@@ -47,7 +48,7 @@ Unlike other AHK scripts, Capslock2 has **zero hardcoded hotkeys**. Every key is
 | **Code size** | ~1,700 lines | ~5,000+ lines | ~10,000+ lines | ~80 lines |
 | **Dependencies** | zero (pure AHK v2) | zero | Rust runtime | zero |
 
-**Capslock2** = modern capslock+ replacement + GUI config CapsLockX lacks + exclusive recovery, multi-plane, and Python integration.
+**Capslock2** = modern capslock+ replacement + GUI config CapsLockX lacks + multi-threaded, recovery, multi-plane, and Python integration.
 
 ## Quick Start
 
