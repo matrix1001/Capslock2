@@ -27,6 +27,30 @@ Unlike other AHK scripts, Capslock2 has **zero hardcoded hotkeys**. Every key is
 - **Python integration** — `Caps+Alt+S` to test, then bind Python scripts to any key
 - **Smart window switching** — launch-or-activate-or-minimize with precise `ahk_exe` / `ahk_class` matching
 
+### Why Capslock2?
+
+| | Capslock2 | capslock+ | CapsLockX | Capslock-Plus-Lite |
+|---|---|---|---|---|
+| **Key-function separation** | ✅ INI, fully decoupled | ⚠️ naming convention | ⚠️ YAML | ❌ hardcoded |
+| **Modifier planes** | ✅ 4 layers | ❌ 1 | ❌ 1 | ❌ 1 |
+| **App-specific keymaps** | ✅ `[Keymap_app]` | ❌ | ❌ | ❌ |
+| **GUI settings editor** | ✅ 5 tabs + Pick Window | ❌ | ❌ | ❌ |
+| **Translation** | ✅ China-friendly, dark UI | ✅ Youdao/Google | ❌ | ❌ |
+| **Python integration** | ✅ bind to any key | ❌ | ❌ | ❌ |
+| **Stuck-key recovery** | ✅ 500ms self-check | ❌ | ❌ | ❌ |
+| **Tap-to-toggle CapsLock** | ✅ <250ms threshold | ✅ | ✅ | ❌ |
+| **Self-tracked modifiers** | ✅ no OS state dependency | — | — | — |
+| **Thread-safe dispatch** | ✅ slow ops never block | ⚠️ partial | ❌ | ❌ |
+| **File change monitors** | ✅ auto-detect, prompt reload | ✅ | ✅ | ❌ |
+| **Window matching** | `ahk_exe`+`ahk_class` precise | window ID (stale) | basic only | ❌ |
+| **Dark UI theme** | ✅ notifications + translate | ❌ | ❌ | ❌ |
+| **Proxy management** | ✅ registry-level | ❌ | ❌ | ❌ |
+| **Background process mgmt** | ✅ tray toggle | ❌ | ❌ | ❌ |
+| **Code size** | ~1,700 lines | ~5,000+ lines | ~10,000+ lines | ~80 lines |
+| **Dependencies** | zero (pure AHK v2) | zero | Rust runtime | zero |
+
+**Capslock2** = modern capslock+ replacement + GUI config CapsLockX lacks + exclusive recovery / multi-plane / thread safety.
+
 ## Quick Start
 
 ```powershell
