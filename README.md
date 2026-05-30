@@ -45,105 +45,52 @@ git clone https://github.com/matrix1001/capslock2
 
 右键托盘图标 → **Edit Settings**，打开 5 标签页的设置编辑器：
 
-<!-- Basic tab -->
-<div style="background:#f0f0f0;color:#333;padding:14px;border:1px solid #ccc;border-radius:4px;font-family:Segoe UI,sans-serif;font-size:13px;line-height:1.6;max-width:540px;margin:14px 0">
-  <div style="display:flex;gap:0;margin-bottom:10px">
-    <span style="background:#fff;color:#333;padding:4px 12px;border:1px solid #ccc;border-bottom-color:#fff;border-radius:3px 3px 0 0;font-size:12px;font-weight:600">Basic</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Keymap</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Switch</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Background</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Trans</span>
-  </div>
-  <div style="margin:6px 0">
-    <label style="display:flex;align-items:center;gap:6px;margin:5px 0"><input type="checkbox" checked disabled> Run as Administrator</label>
-    <label style="display:flex;align-items:center;gap:6px;margin:5px 0"><input type="checkbox" checked disabled> Start with Windows</label>
-    <label style="display:flex;align-items:center;gap:6px;margin:5px 0"><input type="checkbox" checked disabled> Disable on full screen</label>
-    <label style="display:flex;align-items:center;gap:6px;margin:5px 0"><input type="checkbox" checked disabled> Monitor script changes</label>
-    <label style="display:flex;align-items:center;gap:6px;margin:5px 0"><input type="checkbox" checked disabled> Monitor settings changes</label>
-  </div>
-  <div style="margin:8px 0;display:flex;align-items:center;gap:8px">
-    <span>Python path:</span>
-    <span style="background:#fff;padding:2px 8px;border:1px solid #ccc;flex:1">C:\path\to\python.exe</span>
-  </div>
-  <div style="margin:8px 0;display:flex;align-items:center;gap:8px">
-    <span>Proxy mode:</span>
-    <span style="background:#fff;padding:2px 8px;border:1px solid #ccc">Off&nbsp;&nbsp;▾</span>
-  </div>
-  <div style="margin:8px 0;display:flex;align-items:center;gap:8px">
-    <span>Message Level:</span>
-    <span style="background:#fff;padding:2px 8px;border:1px solid #ccc">Normal&nbsp;&nbsp;▾</span>
-  </div>
-  <div style="margin-top:12px;display:flex;gap:6px">
-    <span style="background:#e1e1e1;padding:3px 16px;border:1px solid #ccc;border-radius:2px;font-size:12px">Save</span>
-    <span style="background:#e1e1e1;padding:3px 16px;border:1px solid #ccc;border-radius:2px;font-size:12px">Cancel</span>
-    <span style="background:#e1e1e1;padding:3px 16px;border:1px solid #ccc;border-radius:2px;font-size:12px">Reload Script</span>
-  </div>
-</div>
+| 标签页 | 功能 |
+|--------|------|
+| **Basic** | 管理员模式、开机启动、全屏禁用、Python 路径、代理模式、消息级别 |
+| **Keymap** | 按键 → 函数绑定列表，支持增删改 |
+| **Switch** | 命名窗口定义，含 **Pick Window** 工具（点目标窗口自动填入匹配条件） |
+| **Background** | 后台进程管理列表 |
+| **Trans** | 翻译源语言 / 目标语言 / MyMemory API Key |
 
-<!-- Keymap tab -->
-<div style="background:#f0f0f0;color:#333;padding:14px;border:1px solid #ccc;border-radius:4px;font-family:Segoe UI,sans-serif;font-size:13px;line-height:1.6;max-width:540px;margin:14px 0">
-  <div style="display:flex;gap:0;margin-bottom:10px">
-    <span style="padding:4px 12px;font-size:12px;color:#666">Basic</span>
-    <span style="background:#fff;color:#333;padding:4px 12px;border:1px solid #ccc;border-bottom-color:#fff;border-radius:3px 3px 0 0;font-size:12px;font-weight:600">Keymap</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Switch</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Background</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Trans</span>
-  </div>
-  <table style="width:100%;border-collapse:collapse;font-size:12px">
-    <tr style="background:#e8e8e8"><th style="padding:4px 8px;text-align:left;border:1px solid #ccc;width:120px">Key</th><th style="padding:4px 8px;text-align:left;border:1px solid #ccc">Function</th></tr>
-    <tr style="background:#fff"><td style="padding:3px 8px;border:1px solid #ddd">1</td><td style="padding:3px 8px;border:1px solid #ddd">QWindow(1)</td></tr>
-    <tr style="background:#fff"><td style="padding:3px 8px;border:1px solid #ddd">h</td><td style="padding:3px 8px;border:1px solid #ddd">Send({Left})</td></tr>
-    <tr style="background:#fff"><td style="padding:3px 8px;border:1px solid #ddd">t</td><td style="padding:3px 8px;border:1px solid #ddd">TranslateSelected</td></tr>
-    <tr style="background:#fff"><td style="padding:3px 8px;border:1px solid #ddd">e</td><td style="padding:3px 8px;border:1px solid #ddd">Window(DirectoryOpus)</td></tr>
-    <tr style="background:#fff"><td style="padding:3px 8px;border:1px solid #ddd">esc</td><td style="padding:3px 8px;border:1px solid #ddd">ToggleSuspend</td></tr>
-  </table>
-  <div style="margin-top:10px;display:flex;gap:6px">
-    <span style="background:#e1e1e1;padding:3px 12px;border:1px solid #ccc;border-radius:2px;font-size:12px">Edit</span>
-    <span style="background:#e1e1e1;padding:3px 12px;border:1px solid #ccc;border-radius:2px;font-size:12px">Delete</span>
-    <span style="background:#e1e1e1;padding:3px 12px;border:1px solid #ccc;border-radius:2px;font-size:12px">Add</span>
-  </div>
-</div>
+**Keymap 标签页：**
 
-<!-- Switch tab -->
-<div style="background:#f0f0f0;color:#333;padding:14px;border:1px solid #ccc;border-radius:4px;font-family:Segoe UI,sans-serif;font-size:13px;line-height:1.6;max-width:540px;margin:14px 0">
-  <div style="display:flex;gap:0;margin-bottom:10px">
-    <span style="padding:4px 12px;font-size:12px;color:#666">Basic</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Keymap</span>
-    <span style="background:#fff;color:#333;padding:4px 12px;border:1px solid #ccc;border-bottom-color:#fff;border-radius:3px 3px 0 0;font-size:12px;font-weight:600">Switch</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Background</span>
-    <span style="padding:4px 12px;font-size:12px;color:#666">Trans</span>
-  </div>
-  <table style="width:100%;border-collapse:collapse;font-size:12px">
-    <tr style="background:#e8e8e8"><th style="padding:4px 8px;text-align:left;border:1px solid #ccc;width:120px">Name</th><th style="padding:4px 8px;text-align:left;border:1px solid #ccc">Path / Match</th></tr>
-    <tr style="background:#fff"><td style="padding:3px 8px;border:1px solid #ddd">Terminal</td><td style="padding:3px 8px;border:1px solid #ddd">wt.exe ahk_exe WindowsTerminal.exe ahk_class CASCADIA_HOSTING_WINDOW_CLASS</td></tr>
-    <tr style="background:#fff"><td style="padding:3px 8px;border:1px solid #ddd">VSCode</td><td style="padding:3px 8px;border:1px solid #ddd">Code.exe ahk_exe Code.exe ahk_class Chrome_WidgetWin_1</td></tr>
-  </table>
-  <div style="margin-top:10px;display:flex;gap:6px">
-    <span style="background:#e1e1e1;padding:3px 12px;border:1px solid #ccc;border-radius:2px;font-size:12px">Pick Window</span>
-    <span style="background:#e1e1e1;padding:3px 12px;border:1px solid #ccc;border-radius:2px;font-size:12px">Edit</span>
-    <span style="background:#e1e1e1;padding:3px 12px;border:1px solid #ccc;border-radius:2px;font-size:12px">Delete</span>
-    <span style="background:#e1e1e1;padding:3px 12px;border:1px solid #ccc;border-radius:2px;font-size:12px">Test</span>
-  </div>
-</div>
+| Key | Function |
+|-----|----------|
+| `1` | `QWindow(1)` |
+| `h` | `Send({Left})` |
+| `t` | `TranslateSelected` |
+| `e` | `Window(DirectoryOpus)` |
+| `esc` | `ToggleSuspend` |
+| ... | ... |
 
-**Pick Window**：点击按钮 → 界面隐藏 → 点击任意窗口 → 自动填入进程路径、`ahk_exe`、`ahk_class`。再也不用猜窗口类名了。
+按钮：`Edit` `Delete` `Add`
+
+**Switch 标签页：**
+
+| Name | Path / Match |
+|------|-------------|
+| Terminal | `wt.exe ahk_exe WindowsTerminal.exe ahk_class CASCADIA_HOSTING_WINDOW_CLASS` |
+| VSCode | `Code.exe ahk_exe Code.exe ahk_class Chrome_WidgetWin_1` |
+| ... | ... |
+
+按钮：`Pick Window` `Edit` `Delete` `Test`
+
+> **Pick Window**：点击按钮 → 界面隐藏 → 点击任意窗口 → 自动填入进程路径、`ahk_exe`、`ahk_class`。再也不用猜窗口类名了。
 
 ## 翻译弹窗
 
-选中文本，按 `Caps+T`：
+选中文本，按 `Caps+T`，弹出暗色主题翻译窗口：
 
-<div style="background:#282828;padding:14px 16px;border-radius:8px;font-family:Segoe UI,sans-serif;max-width:520px;margin:16px 0;position:relative">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-    <span style="color:#c0c0c0;font-size:11px;font-weight:500">TRANSLATION</span>
-    <div style="display:flex;gap:14px;align-items:center">
-      <span style="color:#808080;font-size:11px">COPY</span>
-      <span style="color:#808080;font-size:14px;cursor:pointer">✕</span>
-    </div>
-  </div>
-  <div style="color:#fff;font-size:15px;line-height:1.7">
-    明天天气预计晴转多云，气温 18 到 26 度，适合户外活动。出门记得带一件薄外套，早晚温差较大。
-  </div>
-</div>
+```
+┌─ TRANSLATION ──────────── COPY  ✕ ─┐
+│                                      │
+│  明天天气预计晴转多云，气温 18 到     │
+│  26 度，适合户外活动。出门记得带     │
+│  一件薄外套，早晚温差较大。          │
+│                                      │
+└──────────────────────────────────────┘
+```
 
 - **拖动** — 按住 `TRANSLATION` 区域可拖动窗口
 - **复制** — 点击 `COPY` 一键复制译文
