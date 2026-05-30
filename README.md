@@ -19,7 +19,7 @@ Capslock2 是一个 **AutoHotkey v2** 脚本，将 CapsLock 变成一个**修饰
 ## 亮点
 
 - **键位-函数分离** — 所有按键绑定都在 INI 里，增删改不需要碰代码
-- **4 个修饰平面** — Caps、Caps+Alt、Caps+Win、Caps+Win+Alt，一个键四层快捷键
+- **3 个修饰平面** — Caps、Caps+Alt、Caps+Win，一个键三层快捷键
 - **应用级键位覆盖** — 不同应用里同一个按键可以做不同的事
 - **内置 GUI 编辑器** — 5 个标签页的设置窗口，带窗口选择器（点击目标窗口自动填入 `ahk_exe` / `ahk_class`）
 - **暗色主题 UI** — 通知和翻译弹窗风格统一，简洁现代
@@ -32,7 +32,7 @@ Capslock2 是一个 **AutoHotkey v2** 脚本，将 CapsLock 变成一个**修饰
 | | Capslock2 | capslock+ | CapsLockX | Capslock-Plus-Lite |
 |---|---|---|---|---|
 | **按键-函数分离** | ✅ INI 完全分离 | ⚠️ 命名约定 | ⚠️ YAML | ❌ 硬编码 |
-| **多修饰平面** | ✅ 4 层（Caps/Alt/Win 组合） | ❌ 1 层 | ❌ 1 层 | ⚠️ 2 层（硬编码） |
+| **多修饰平面** | ✅ 3 层（Caps/Alt/Win 组合） | ❌ 1 层 | ❌ 1 层 | ⚠️ 2 层（硬编码） |
 | **应用级键位覆盖** | ✅ `[Keymap_app]` | ❌ | ❌ | ❌ |
 | **GUI 设置编辑器** | ✅ 5 标签页 + Pick Window | ❌ | ❌ | ❌ |
 | **翻译** | ✅ 国内可用，暗色弹窗 | ✅ 有道/谷歌 | ❌ | ❌ |
@@ -138,7 +138,7 @@ git clone https://github.com/matrix1001/capslock2
 |------|------|
 | `1`–`5` | 切换快速绑定窗口 |
 | `Alt`+`1`–`5` | 绑定当前窗口到数字键 |
-| `tab` | 同程序窗口间切换 |
+| `tab` | 同应用窗口间切换（如多个 VS Code 窗口之间） |
 | `g` | 关闭当前窗口 |
 | `space` | 窗口置顶开关 |
 
@@ -213,7 +213,7 @@ alt_n=MyFunction(hello, 42)        ; 调用你自己写的函数（带参数）
 | `QWindowBind(idx)` | 绑定当前窗口到数字键 | `alt_1=QWindowBind(1)` |
 | `WindowKill()` | 关闭当前活动窗口 | `g=WindowKill` |
 | `WindowToggleOnTop()` | 切换窗口置顶状态 | `space=WindowToggleOnTop` |
-| `SameWindowSwitch()` | 在同 exe+class 的窗口间循环 | `tab=SameWindowSwitch` |
+| `SameWindowSwitch()` | 同应用多窗口间循环（如多个 VS Code、多个记事本） | `tab=SameWindowSwitch` |
 | `TranslateSelected()` | 翻译选中文本（MyMemory API） | `t=TranslateSelected` |
 | `ToggleProxy()` | 开关系统代理 | `alt_p=ToggleProxy` |
 | `ToggleSuspend()` | 暂停/恢复 Capslock2 | `esc=ToggleSuspend` |
@@ -360,4 +360,6 @@ icon/
 
 ## 许可
 
-MIT。`lib/json.ahk` 来自 [cocobelgica/AutoHotkey-JSON](https://github.com/cocobelgica/AutoHotkey-JSON)，遵循其原始许可。
+个人、教育用途免费使用。**禁止商用**（包括但不限于销售、付费服务、嵌入商业产品）。
+
+`lib/json.ahk` 来自 [cocobelgica/AutoHotkey-JSON](https://github.com/cocobelgica/AutoHotkey-JSON)，遵循其原始许可。

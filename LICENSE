@@ -1,0 +1,35 @@
+MIT License with Commons Clause
+
+Copyright (c) 2023-2026 matrix1001
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to use
+the Software for personal, educational, or academic research purposes only,
+subject to the following conditions:
+
+1. The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+2. Commercial use of the Software, in whole or in part, is strictly prohibited.
+   "Commercial use" means any use of the Software that is intended for commercial
+   advantage or monetary compensation, including but not limited to:
+   - Selling, licensing, or distributing the Software for a fee
+   - Using the Software to provide paid services
+   - Incorporating the Software into a commercial product
+
+3. Redistribution of the Software, with or without modification, is permitted
+   provided that:
+   - The redistribution is not for commercial purposes
+   - This license and copyright notice are retained
+   - Modified versions are clearly marked as such
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+This license does not apply to `lib/json.ahk`, which is from
+cocobelgica/AutoHotkey-JSON and follows its original license.

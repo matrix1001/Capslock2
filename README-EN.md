@@ -19,7 +19,7 @@ Unlike other AHK scripts, Capslock2 has **zero hardcoded hotkeys**. Every key is
 ## Highlights
 
 - **Key-function separation** — every key binding is an INI entry. Swap, add, or remove keys without touching code
-- **4 modifier planes** — Caps, Caps+Alt, Caps+Win, Caps+Win+Alt. Four layers of shortcuts from one key
+- **3 modifier planes** — Caps, Caps+Alt, Caps+Win. Three layers of shortcuts from one key
 - **App-specific keymaps** — different keys do different things depending on which app is active
 - **Built-in GUI editor** — 5-tab settings window with a window picker that auto-fills `ahk_exe` / `ahk_class`
 - **Dark-themed UI** — notifications and translation popup with a clean, modern look
@@ -32,7 +32,7 @@ Unlike other AHK scripts, Capslock2 has **zero hardcoded hotkeys**. Every key is
 | | Capslock2 | capslock+ | CapsLockX | Capslock-Plus-Lite |
 |---|---|---|---|---|
 | **Key-function separation** | ✅ INI, fully decoupled | ⚠️ naming convention | ⚠️ YAML | ❌ hardcoded |
-| **Modifier planes** | ✅ 4 (Caps/Alt/Win combos) | ❌ 1 | ❌ 1 | ⚠️ 2 (hardcoded) |
+| **Modifier planes** | ✅ 3 (Caps/Alt/Win combos) | ❌ 1 | ❌ 1 | ⚠️ 2 (hardcoded) |
 | **App-specific keymaps** | ✅ `[Keymap_app]` | ❌ | ❌ | ❌ |
 | **GUI settings editor** | ✅ 5 tabs + Pick Window | ❌ | ❌ | ❌ |
 | **Translation** | ✅ China-friendly, dark UI | ✅ Youdao/Google | ❌ | ❌ |
@@ -139,7 +139,7 @@ Uses [MyMemory](https://mymemory.translated.net/) — free, no API key required,
 |------|--------|
 | `1`–`5` | Switch to quick-bound window |
 | `Alt`+`1`–`5` | Bind current window to digit |
-| `tab` | Cycle same-app windows |
+| `tab` | Cycle between same-app windows (e.g. multiple VS Code instances) |
 | `g` | Kill active window |
 | `space` | Toggle always-on-top |
 
@@ -359,4 +359,6 @@ icon/
 
 ## License
 
-MIT. `lib/json.ahk` is from [cocobelgica/AutoHotkey-JSON](https://github.com/cocobelgica/AutoHotkey-JSON) and follows its original license.
+Free for personal and educational use. **Commercial use is prohibited** (including but not limited to selling, paid services, or embedding in commercial products).
+
+`lib/json.ahk` is from [cocobelgica/AutoHotkey-JSON](https://github.com/cocobelgica/AutoHotkey-JSON) and follows its original license.
