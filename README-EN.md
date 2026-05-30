@@ -32,15 +32,15 @@ Unlike other AHK scripts, Capslock2 has **zero hardcoded hotkeys**. Every key is
 | | Capslock2 | capslock+ | CapsLockX | Capslock-Plus-Lite |
 |---|---|---|---|---|
 | **Key-function separation** | ✅ INI, fully decoupled | ⚠️ naming convention | ⚠️ YAML | ❌ hardcoded |
-| **Modifier planes** | ✅ 4 layers | ❌ 1 | ❌ 1 | ❌ 1 |
+| **Modifier planes** | ✅ 4 (Caps/Alt/Win combos) | ❌ 1 | ❌ 1 | ⚠️ 2 (hardcoded) |
 | **App-specific keymaps** | ✅ `[Keymap_app]` | ❌ | ❌ | ❌ |
 | **GUI settings editor** | ✅ 5 tabs + Pick Window | ❌ | ❌ | ❌ |
 | **Translation** | ✅ China-friendly, dark UI | ✅ Youdao/Google | ❌ | ❌ |
 | **Python integration** | ✅ bind to any key | ❌ | ❌ | ❌ |
-| **Multi-threaded** | ✅ slow ops never block | ⚠️ partial | ❌ | ❌ |
-| **Stuck-key recovery** | ✅ 500ms self-check | ❌ | ❌ | ❌ |
+| **Multi-threaded** | ✅ SetTimer dispatch, non-blocking | ❌ direct call | ✅ Rust async | ❌ |
+| **Stuck-key recovery** | ✅ 500ms self-check | ❌ | — | ❌ |
 | **Tap-to-toggle CapsLock** | ✅ <250ms threshold | ✅ | ✅ | ❌ |
-| **File change monitors** | ✅ auto-detect, prompt reload | ✅ | ✅ | ❌ |
+| **File change monitors** | ✅ auto-detect, prompt reload | ✅ | — | ❌ |
 | **Window matching** | `ahk_exe`+`ahk_class` precise | window ID (stale) | basic only | ❌ |
 | **Dark UI theme** | ✅ notifications + translate | ❌ | ❌ | ❌ |
 | **Proxy management** | ✅ registry-level | ❌ | ❌ | ❌ |
