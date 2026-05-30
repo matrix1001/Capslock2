@@ -109,8 +109,8 @@ Jxon_Load(&src, args*) {
 					if (SubStr(val, i+1, 1) != "u") ? (pos -= StrLen(SubStr(val, i)), next := "\") : 0
 						continue 2
 
-					xxxx := Abs("0x" . SubStr(val, i+2, 4)) ; \uXXXX - JSON unicode escape sequence
-					if (xxxx < 0x100)
+					xxxx := Integer("0x" . SubStr(val, i+2, 4)) ; \uXXXX - JSON unicode escape sequence
+					if (xxxx > 0)
 						val := SubStr(val, 1, i-1) . Chr(xxxx) . SubStr(val, i+6)
 				}
 				

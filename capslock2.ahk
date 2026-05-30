@@ -1,6 +1,7 @@
 #Requires AutoHotkey v2.0+
 #SingleInstance Force
 SendMode("Input")
+A_MenuMaskKey := "vkE8"
 DetectHiddenWindows(true)
 InstallKeybdHook
 InstallMouseHook
@@ -16,6 +17,8 @@ SetWorkingDir(A_InitialWorkingDir)
 #Include lib\input.ahk
 #Include lib\tray.ahk
 #Include lib\engine.ahk
+#Include lib\settings_gui.ahk
+#Include lib\python.ahk
 #Include lib\functions.ahk
 
 SetCapsLockState("AlwaysOff")

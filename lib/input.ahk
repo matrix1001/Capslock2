@@ -6,12 +6,15 @@ class InputMgr {
     _shortThreshold := 250
 
     ; === Keymap ===
-    _keymap := Map()
     _layerCache := ""
     _parsedCache := Map()
 
     ; === InputHook ===
     _ih := ""
+
+    ; === Modifier tracking ===
+    _altHeld := false
+    _winHeld := false
 
     ; === Suspend ===
     _suspend := false
@@ -19,10 +22,22 @@ class InputMgr {
     Init(config) {
         this._config := config
         this.ReloadKeymap()
+        this._safetyCheckFn := this._SafetyCheck.Bind(this)
+        SetTimer(this._safetyCheckFn, 500)
+    }
+
+    _RecoverStuck() {
+        try this._StopInputHook()
+        this._state := "Idle"
+        return false
+    }
+
+    _SafetyCheck() {
+        if this._state = "CapsHeld" and not GetKeyState("CapsLock", "P")
+            this._RecoverStuck()
     }
 
     ReloadKeymap() {
-        this._keymap := this._config.GetKeymap()
         this._layerCache := ""
         this._parsedCache := Map()
     }
@@ -35,8 +50,12 @@ class InputMgr {
         if this._config.Get("Basic", "DisableOnFullScreen", 1) = 1
             and WindowMgr.IsFullScreen("A") and not WindowMgr.IsDesktop("A")
             return
+        if this._state = "CapsHeld"
+            return
         this._capsDownTick := A_TickCount
         this._keysConsumed := false
+        this._altHeld := false
+        this._winHeld := false
         this._state := "CapsHeld"
         this._layerCache := ""
         this._StartInputHook()
@@ -45,7 +64,7 @@ class InputMgr {
     OnCapsUp() {
         if this._state != "CapsHeld"
             return
-        this._StopInputHook()
+        try this._StopInputHook()
         this._state := "Idle"
         this._layerCache := ""
 
@@ -56,38 +75,36 @@ class InputMgr {
     OnWheel(direction) {
         if this._state != "CapsHeld" or this._suspend
             return
-        keyname := direction  ; "wheelup" or "wheeldown"
-        layerName := this._ResolveLayer()
-        layerKeymap := this._config.GetKeymap(layerName)
-        if layerKeymap.Has(keyname) {
-            fnStr := layerKeymap[keyname]
-            if fnStr = ""
-                return
-            this._keysConsumed := true
-            this._Dispatch(fnStr)
-        }
+        this._TryDispatch(direction)
     }
 
-    IsCapturing => this._state = "CapsHeld"
+    IsCapturing {
+        get {
+            if this._state != "CapsHeld"
+                return false
+            if not GetKeyState("CapsLock", "P")
+                return this._RecoverStuck()
+            return true
+        }
+    }
     IsSuspended() => this._suspend
     Suspend() {
         this._suspend := true
-        TraySetIcon("icon/hyper-suspend.ico",, 1)
+        TraySetIcon("icon/capslock2-suspend.ico",, 1)
     }
     Resume() {
         this._suspend := false
-        TraySetIcon("icon/hyper.ico",, 1)
+        TraySetIcon("icon/capslock2.ico",, 1)
     }
 
     ; === InputHook management ===
     _StartInputHook() {
-        this._ih := InputHook("V")              ; V = sets VisibleText + VisibleNonText = true (all pass through)
-        this._ih.KeyOpt("{All}", "N")           ; notify for all keys
+        this._ih := InputHook("V")
+        this._ih.KeyOpt("{All}", "N")
 
-        ; Pre-configure suppression for all mapped keys
         layerName := this._ResolveLayer()
         layerKeymap := this._config.GetKeymap(layerName)
-        suppressed := Map()                     ; dedup: only suppress each base key once
+        suppressed := Map()
         for keyname, _ in layerKeymap {
             baseKey := this._ExtractBaseKey(keyname)
             if baseKey = "" or suppressed.Has(baseKey)
@@ -95,11 +112,10 @@ class InputMgr {
             suppressed[baseKey] := 1
             ihKey := this._ToInputHookKey(baseKey)
             if ihKey != ""
-                this._ih.KeyOpt(ihKey, "+S")     ; suppress mapped keys
+                this._ih.KeyOpt(ihKey, "+S")
         }
 
         this._ih.OnKeyDown := this._OnKeyDown.Bind(this)
-        this._ih.OnKeyUp := this._OnKeyUp.Bind(this)
         this._ih.Start()
     }
 
@@ -112,23 +128,18 @@ class InputMgr {
 
     ; === InputHook callbacks ===
     _OnKeyDown(ih, vk, sc) {
+        if not GetKeyState("CapsLock", "P")
+            return this._RecoverStuck()
         keyname := this._ResolveKey(vk, sc)
-        if keyname = "" or keyname = "CapsLock"
+        if keyname = "" or keyname = "CapsLock" {
+            raw := GetKeyName(Format("vk{:x}sc{:x}", vk, sc))
+            if raw = "LAlt" or raw = "RAlt"
+                this._altHeld := true
+            else if raw = "LWin" or raw = "RWin"
+                this._winHeld := true
             return
-        layerName := this._ResolveLayer()
-        layerKeymap := this._config.GetKeymap(layerName)
-        if layerKeymap.Has(keyname) {
-            fnStr := layerKeymap[keyname]
-            if fnStr = ""                          ; empty = disabled in this layer
-                return
-            this._keysConsumed := true
-            this._Dispatch(fnStr)
         }
-        ; unmapped keys pass through (VisibleText/VisibleNonText = true)
-    }
-
-    _OnKeyUp(ih, vk, sc) {
-        ; no-op
+        this._TryDispatch(keyname)
     }
 
     ; === Key resolution ===
@@ -159,20 +170,16 @@ class InputMgr {
 
     _GetModifierPrefix() {
         prefix := ""
-        if GetKeyState("LAlt", "P") or GetKeyState("RAlt", "P")
-            prefix .= "alt_"
-        if GetKeyState("LWin", "P") or GetKeyState("RWin", "P")
-            prefix .= "win_"
+        if this._altHeld
+            prefix .= "alt"
+        if this._winHeld
+            prefix .= "win"
         return prefix
     }
 
     ; === Key name conversion for KeyOpt ===
     _ExtractBaseKey(keyname) {
-        for prefix in ["alt_", "win_"] {
-            if InStr(keyname, prefix) = 1
-                keyname := SubStr(keyname, StrLen(prefix) + 1)
-        }
-        return keyname
+        return RegExReplace(keyname, "^(alt_|win_)+")
     }
 
     _ToInputHookKey(baseKey) {
@@ -201,6 +208,19 @@ class InputMgr {
         return ""
     }
 
+    ; === Dispatch helpers ===
+    _TryDispatch(keyname) {
+        layerName := this._ResolveLayer()
+        layerKeymap := this._config.GetKeymap(layerName)
+        if layerKeymap.Has(keyname) {
+            fnStr := layerKeymap[keyname]
+            if fnStr = ""
+                return
+            this._keysConsumed := true
+            this._Dispatch(fnStr)
+        }
+    }
+
     ; === Layer resolution ===
     _ResolveLayer() {
         if this._layerCache != ""
@@ -209,7 +229,7 @@ class InputMgr {
         if exe = ""
             return ""
         name := StrLower(StrReplace(exe, ".exe", ""))
-        if this._config.GetKeymap(name).Count > 0 {
+        if this._config.HasSection("Keymap_" . name) {
             this._layerCache := name
             return name
         }
@@ -218,44 +238,46 @@ class InputMgr {
     }
 
     ; === Dispatch ===
-    _Dispatch(fnStr) {
-        if this._parsedCache.Has(fnStr) {
-            cached := this._parsedCache[fnStr]
-            this._RunFunc(cached.fn, cached.params)
-            return
-        }
-        parsed := this._ParseAndCache(fnStr)
-        if parsed
-            this._RunFunc(parsed.fn, parsed.params)
-    }
-
     _ParseAndCache(fnStr) {
         match := []
+        fnName := ""
         params := []
         if not RegExMatch(Trim(fnStr), "\)$") {
-            fn := %fnStr%
+            fnName := fnStr
         } else if RegExMatch(fnStr, "(\w+)\((.*)\)$", &match) {
-            fn := %match[1]%
+            fnName := match[1]
             if match.Count > 1 and match[2] != ""
-                params := StrSplit(match[2], ",", " `"'")
+                params := [Trim(match[2], " `"'")]
         } else {
             return ""
         }
-        result := {fn: fn, params: params}
+        result := {fnName: fnName, params: params}
         this._parsedCache[fnStr] := result
         return result
     }
 
-    _RunFunc(fn, params) {
-        SetTimer(_Exec, -1)
-        _Exec() {
-            try
-                fn(params*)
-            catch Error as e
-                Engine.Instance.notify.Error(
-                    Format("{1}`nLine: {2}`nFile: {3}`nExtra: {4}", e.Message, e.Line, e.File, e.Extra),
-                    fn.Name)
+    _Dispatch(fnStr) {
+        if this._parsedCache.Has(fnStr) {
+            cached := this._parsedCache[fnStr]
+            this._RunFunc(cached.fnName, cached.params)
+            return
         }
+        parsed := this._ParseAndCache(fnStr)
+        if parsed
+            this._RunFunc(parsed.fnName, parsed.params)
+    }
+
+    _RunFunc(fnName, params) {
+        SetTimer(ObjBindMethod(this, "_ExecDispatch", fnName, params), -1)
+    }
+
+    _ExecDispatch(fnName, params) {
+        try
+            %fnName%(params*)
+        catch Error as e
+            Engine.Instance.notify.Error(
+                Format("{1}`nLine: {2}`nExtra: {3}", e.Message, e.Line, e.Extra),
+                fnName)
     }
 
     ; === CapsLock control ===

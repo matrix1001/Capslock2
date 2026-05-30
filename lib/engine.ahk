@@ -24,14 +24,15 @@ class Engine {
     }
 
     OnHotReload() {
-        if this.config.IsScriptChanged()
+        if this.config.IsScriptChanged() {
             Reload
-        else if this.config.IsSettingChanged() {
-            this.config.Reload()
-            this.input.ReloadKeymap()
-            this.config.ClearChangeFlags()
-            this.notify.Info("Settings reloaded")
+            return
         }
+        this.config.Reload()
+        this.input.ReloadKeymap()
+        this.tray.RebuildMenu()
+        this.config.ClearChangeFlags()
+        this.notify.Info("Config reloaded")
     }
 
     OnSuspend() {

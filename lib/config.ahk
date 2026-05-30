@@ -3,7 +3,6 @@ class Config {
     _path := "Settings.ini"
     _settingChanged := false
     _scriptChanged := false
-    _fileTimestamps := Map()
 
     Init() {
         if FileExist(this._path)
@@ -59,10 +58,6 @@ class Config {
         return result
     }
 
-    GetDefaultKeymap() {
-        return this._BuildDefaults()["Keymap"]
-    }
-
     ; === Change tracking ===
     IsSettingChanged() => this._settingChanged
     IsScriptChanged() => this._scriptChanged
@@ -72,6 +67,10 @@ class Config {
     }
 
     ; === Section access ===
+    HasSection(section) {
+        return this._data.Has(section)
+    }
+
     GetSection(section) {
         result := Map()
         if this._data.Has(section)
@@ -114,27 +113,30 @@ class Config {
             "ScriptMonitor", 1,
             "SettingMonitor", 1,
             "StartUp", 1,
-            "Python", ""
+            "Python", "",
+            "Proxy", ""
         )
         d["Keymap"] := Map(
-            "1", "WindowC(1)", "2", "WindowC(2)", "3", "WindowC(3)",
-            "4", "WindowC(4)", "5", "WindowC(5)", "minus", "WindowCClear",
+            "1", "QWindow(1)", "2", "QWindow(2)", "3", "QWindow(3)",
+            "4", "QWindow(4)", "5", "QWindow(5)",
+            "alt_1", "QWindowBind(1)", "alt_2", "QWindowBind(2)", "alt_3", "QWindowBind(3)",
+            "alt_4", "QWindowBind(4)", "alt_5", "QWindowBind(5)",
             "g", "WindowKill",
             "i", "Send({Blind}{Home})", "o", "Send({Blind}{End})",
             "h", "Send({Blind}{Left})", "j", "Send({Blind}{Down})",
             "k", "Send({Blind}{Up})", "l", "Send({Blind}{Right})",
             "left", "Send({Blind}#^{Left})", "right", "Send({Blind}#^{Right})",
-            "s", "HyperSearch", "space", "WindowToggleOnTop",
+            "space", "WindowToggleOnTop",
             "t", "TranslateSelected", "tab", "SameWindowSwitch",
             "u", "Send({Blind}{PgUp})", "p", "Send({Blind}{PgDn})",
             "c", "Send({Blind}^{Insert})", "v", "Send({Blind}+{Insert})",
             "up", "Send({Blind}{Volume_Up})", "down", "Send({Blind}{Volume_Down})",
             "wheelup", "Send({Blind}{Volume_Up})", "wheeldown", "Send({Blind}{Volume_Down})",
-            "alt_r", "HyperReload", "alt_p", "ToggleProxy",
+            "alt_r", "ReloadScript", "alt_p", "ToggleProxy", "alt_s", "TestPython",
             "esc", "ToggleSuspend"
         )
-        d["Notify"] := Map("Enable", 1, "Max", 5, "MsgLevel", 1, "Style", "slide")
-        d["Trans"] := Map("GoogleProxy", "force", "SourceLanguage", "auto", "TargetLanguage", "zh")
+        d["Notify"] := Map("MsgLevel", 1)
+        d["Trans"] := Map("SourceLanguage", "en", "TargetLanguage", "zh-CN", "MyMemoryKey", "")
         d["Background"] := Map()
         d["Switch"] := Map("NotePad", "notepad.exe")
         return d
@@ -203,6 +205,7 @@ class Config {
         if (current != lastMtime) {
             this._settingChanged := true
             lastMtime := current
+            Engine.Instance.tray.UpdateState()
         }
     }
 
@@ -225,6 +228,7 @@ class Config {
             return
         }
 
+        prev := this._scriptChanged
         for f, ts in timestamps {
             if not lst.Has(f) {
                 this._scriptChanged := true
@@ -241,5 +245,8 @@ class Config {
                 timestamps[f] := current
             }
         }
+
+        if this._scriptChanged and not prev
+            Engine.Instance.tray.UpdateState()
     }
 }

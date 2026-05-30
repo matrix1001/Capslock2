@@ -5,7 +5,12 @@ class TrayMgr {
 
     Init(engine) {
         this._engine := engine
-        TraySetIcon("icon/hyper.ico")
+        TraySetIcon("icon/capslock2.ico")
+        this._BuildMenu()
+        this.UpdateState()
+    }
+
+    RebuildMenu() {
         this._BuildMenu()
         this.UpdateState()
     }
@@ -22,7 +27,7 @@ class TrayMgr {
             case "Open Directory":
                 Run(A_ScriptDir)
             case "Edit Settings":
-                Run("Settings.ini")
+                SettingsGui().Show(this._engine.config)
             case "Disable On Full Screen":
                 current := this._engine.config.Get("Basic", "DisableOnFullScreen", 1)
                 this._engine.config.Set("Basic", "DisableOnFullScreen", current = 0 ? 1 : 0)
@@ -39,14 +44,16 @@ class TrayMgr {
     }
 
     _OnUtilsEvent(ItemName, ItemPos, ThisMenu) {
-        config := this._engine.config
-        if config.Get("Background", ItemName, "") != "" {
-            cmd := config.Get("Background", ItemName)
+        cmd := this._engine.config.Get("Background", ItemName, "")
+        if cmd != "" {
             status := Helpers.ToggleBackground(ItemName, cmd)
             this._engine.notify.Info(ItemName . " " . status)
-        } else if ItemPos = 3 {
-            this._ShowProxyGui()
+            this.UpdateState()
         }
+    }
+
+    _OnProxyEvent(*) {
+        this._ShowProxyGui()
     }
 
     _OnMsgLevelEvent(ItemName, ItemPos, MyMenu) {
@@ -83,19 +90,21 @@ class TrayMgr {
         A_TrayMenu.Add()
 
         this._utilsMenu := Menu()
-        this._utilsMenu.Add("System Proxy", this._OnUtilsEvent.Bind(this))
-        this._utilsMenu.Disable("System Proxy")
+        this._utilsMenu.Add("Proxy: " . Helpers.GetProxyServer(), this._OnProxyEvent.Bind(this))
         this._utilsMenu.Add()
-        this._utilsMenu.Add(Helpers.GetProxyServer(), this._OnUtilsEvent.Bind(this))
-        this._utilsMenu.Add()
-        this._utilsMenu.Add("Background", this._OnUtilsEvent.Bind(this))
-        this._utilsMenu.Disable("Background")
         for bgName, _ in this._engine.config.GetSection("Background")
             this._utilsMenu.Add(bgName, this._OnUtilsEvent.Bind(this))
 
         A_TrayMenu.Add("Utils", this._utilsMenu)
         A_TrayMenu.Add()
         A_TrayMenu.Add("AutoHotkey", defaultMenu)
+    }
+
+    _GetBackgroundStates() {
+        states := Map()
+        for bgName, bgCmd in this._engine.config.GetSection("Background")
+            states[bgName] := ProcessExist(Helpers.GetNameFromCmd(bgCmd))
+        return states
     }
 
     _UpdateToolTip() {
@@ -114,8 +123,8 @@ class TrayMgr {
             content .= " (enable)"
         content .= "`n"
 
-        for bgName, bgCmd in this._engine.config.GetSection("Background")
-            if ProcessExist(Helpers.GetNameFromCmd(bgCmd))
+        for bgName, pid in this._GetBackgroundStates()
+            if pid
                 content .= "Background: " . bgName . "`n"
 
         A_IconTip := content
@@ -136,13 +145,13 @@ class TrayMgr {
         if A_IsAdmin
             A_TrayMenu.Check("Run As Admin")
 
-        this._utilsMenu.Uncheck(Helpers.GetProxyServer())
+        proxyItem := "Proxy: " . Helpers.GetProxyServer()
+        this._utilsMenu.Uncheck(proxyItem)
         if Helpers.GetProxyStatus()
-            this._utilsMenu.Check(Helpers.GetProxyServer())
+            this._utilsMenu.Check(proxyItem)
 
-        for bgName, bgCmd in this._engine.config.GetSection("Background") {
-            bgExe := Helpers.GetNameFromCmd(bgCmd)
-            if ProcessExist(bgExe)
+        for bgName, pid in this._GetBackgroundStates() {
+            if pid
                 this._utilsMenu.Check(bgName)
             else
                 this._utilsMenu.Uncheck(bgName)
@@ -164,10 +173,11 @@ class TrayMgr {
         _ProcessInput(*) {
             Saved := MyGui.Submit()
             Helpers.SetProxy(Saved.Enable, Saved.Server)
+            MyGui.Destroy()
             Engine.Instance.tray.UpdateState()
         }
         _CloseGui(*) {
-            MyGui.Submit()
+            MyGui.Destroy()
         }
     }
 }

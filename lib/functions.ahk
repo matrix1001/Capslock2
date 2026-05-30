@@ -2,29 +2,31 @@
 ; All delegate to Engine.Instance class methods.
 
 ; Window management
-WindowA(name) {
+Window(name) {
     path := Engine.Instance.config.Get("Switch", name)
+    if path = "" {
+        Engine.Instance.notify.Warn("Switch entry not found: " . name)
+        return
+    }
     Engine.Instance.window.ActivateOrLaunch(path)
 }
 
-WindowB(name) {
-    path := Engine.Instance.config.Get("Switch", name)
-    Engine.Instance.window.ActivateOrLaunchLast(path)
+QWindow(idx) {
+    result := Engine.Instance.window.QWindowToggle(idx)
+    switch result {
+        case "not_bound":
+            Engine.Instance.notify.Info("QWindow " . idx . ": not bound")
+        case "closed":
+            Engine.Instance.notify.Info("QWindow " . idx . ": window closed, cleared")
+    }
 }
 
-WindowC(idx) => Engine.Instance.window.QuickToggle(idx)
-WindowCClear() {
-    Engine.Instance.notify.Info("Press digit 1-5 to clear binding")
-    Engine.Instance.input._StopInputHook()
-    ih := InputHook("L1")
-    ih.KeyOpt("12345", "+N")
-    ih.Start()
-    ih.Wait()
-    digit := ih.Input
-    if digit != "" {
-        Engine.Instance.window.QuickClear(digit)
-        Engine.Instance.notify.Info("QuickWindow " . digit . " cleared")
-    }
+QWindowBind(idx) {
+    title := Engine.Instance.window.QWindowBind(idx)
+    if title != ""
+        Engine.Instance.notify.Info("QWindow " . idx . " ← " . title)
+    else
+        Engine.Instance.notify.Info("QWindow " . idx . ": bind failed")
 }
 WindowKill() => Engine.Instance.window.KillActive()
 WindowToggleOnTop() {
@@ -39,10 +41,20 @@ TranslateSelected() => Engine.Instance.translate.TranslateSelected()
 ; System
 ToggleProxy() => Helpers.ToggleProxy()
 ToggleSuspend() => Engine.Instance.OnSuspend()
-HyperReload() => Engine.Instance.OnHotReload()
+ReloadScript() => Engine.Instance.OnHotReload()
+TestPython() {
+    code := "
+    (
+import sys
+print(f'Python {sys.version}')
+print('Hello from Capslock2!')
+    )"
+    result := PythonRunner.Run(code)
+    Engine.Instance.notify.Info(result != "" ? result : "No output (check Python path)")
+}
 
 ; Background
-ToggleBackgound(name) {
+ToggleBackground(name) {
     cmd := Engine.Instance.config.Get("Background", name)
     if cmd = "" {
         Engine.Instance.notify.Warn("Background task " . name . " not found")
@@ -53,7 +65,3 @@ ToggleBackgound(name) {
     Engine.Instance.tray.UpdateState()
 }
 
-; Search (placeholder — user provides implementation)
-HyperSearch() {
-    Engine.Instance.notify.Info("HyperSearch not configured")
-}

@@ -2,54 +2,57 @@ class WindowMgr {
     _quick := Map()
 
     ActivateOrLaunch(path) {
-        title := "ahk_exe " . path
-        if not WinExist(title) {
-            Run(path)
-        } else if not WinActive(title) {
-            WinActivate(title)
+        ; Build window title and launch path from [Switch] value.
+        ; "notepad.exe"  →  title="ahk_exe notepad.exe"  exe="notepad.exe"
+        ; "app.exe ahk_exe app.exe ahk_class XXX"
+        ;   →  title="ahk_exe app.exe ahk_class XXX"  exe="app.exe"
+        ; "C:\...\app.exe ahk_exe app.exe ahk_class XXX"
+        ;   →  title="ahk_exe app.exe ahk_class XXX"  exe="C:\...\app.exe"
+        ahkPos := InStr(path, "ahk_")
+        if ahkPos {
+            title := SubStr(path, ahkPos)
+            exe := Trim(SubStr(path, 1, ahkPos - 1))
+        } else {
+            exe := path
+            if InStr(exe, "\")
+                SplitPath(path, &exe)
+            title := "ahk_exe " . exe
+        }
+
+        hwnd := WinExist(title)
+        if not hwnd {
+            Run(exe)
+        } else if not WinActive("ahk_id " . hwnd) {
+            WinActivate("ahk_id " . hwnd)
         } else {
             WinMinimize()
         }
     }
 
-    ActivateOrLaunchLast(path) {
-        title := "ahk_exe " . path
-        if not WinExist(title) {
-            Run(path)
-        } else if not WinActive(title) {
-            WinActivateBottom(title)
-        } else {
-            WinMinimize()
-        }
-    }
-
-    QuickToggle(idx) {
+    QWindowToggle(idx) {
         hwnd := this._quick.Get(idx, 0)
-        if (hwnd != 0) {
-            if not WinExist(hwnd) {
-                this._quick[idx] := 0
-                return
-            }
-            if WinActive(hwnd)
-                WinMinimize()
-            else
-                WinActivate(hwnd)
-        } else {
-            this.QuickBind(idx)
+        if (hwnd = 0)
+            return "not_bound"
+        if not WinExist(hwnd) {
+            this._quick[idx] := 0
+            return "closed"
         }
+        if WinActive(hwnd) {
+            WinMinimize()
+            return "minimized"
+        }
+        WinActivate(hwnd)
+        return "activated"
     }
 
-    QuickBind(idx) {
+    QWindowBind(idx) {
         hwnd := WinGetID("A")
         exe := WinGetProcessName("A")
         cls := WinGetClass("A")
         if (exe = "Explorer.EXE" and cls = "WorkerW")
-            return
+            return ""
         this._quick[idx] := hwnd
-    }
-
-    QuickClear(idx) {
-        this._quick[idx] := 0
+        return WinGetTitle(hwnd)
     }
 
     KillActive() {
@@ -65,7 +68,19 @@ class WindowMgr {
     SameProcessSwitch() {
         cls := WinGetClass("A")
         exe := WinGetProcessPath("A")
-        WinActivateBottom("ahk_class " . cls . " ahk_exe " . exe)
+        title := "ahk_class " . cls . " ahk_exe " . exe
+        cur := WinGetID("A")
+        hwnds := WinGetList(title)
+        for hwnd in hwnds {
+            if hwnd = cur
+                continue
+            if not DllCall("IsWindowVisible", "Ptr", hwnd)
+                continue
+            if WinGetMinMax(hwnd) = -1
+                continue
+            WinActivate("ahk_id " . hwnd)
+            return
+        }
     }
 
     static IsFullScreen(winTitle) {
