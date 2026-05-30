@@ -206,6 +206,7 @@ class Config {
             this._settingChanged := true
             lastMtime := current
             Engine.Instance.tray.UpdateState()
+            Engine.Instance.notify.Info("Settings changed — Alt+R to reload")
         }
     }
 
@@ -246,7 +247,9 @@ class Config {
             }
         }
 
-        if this._scriptChanged and not prev
+        if this._scriptChanged and not prev {
             Engine.Instance.tray.UpdateState()
+            Engine.Instance.notify.Warn("Script changed — Alt+R to reload")
+        }
     }
 }
